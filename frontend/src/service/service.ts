@@ -67,7 +67,7 @@ class Service{
 
 
         } catch (error) {
-            console.log("Error in uploading resume ")
+            console.log("Error in uploading resume ", error)
             throw error
         }
     }
@@ -81,7 +81,6 @@ class Service{
                 data.append(key,incomingData[key])
             }
 
-            console.log(data)
             data.append('resume', resume)
             data.append('photo', photo)
 
