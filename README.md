@@ -1,11 +1,11 @@
 # [AI-Based Interviewer](https://int-o-view.vercel.app/)
 
-This project is an AI-based interviewer application designed to simulate a professional interview environment. It leverages two Large Language Models (LLMs) provided by Groq: Gemma2-9b for faster inference and reasoning model qwen qwq for better reference. The application automatically converses with the interviewee and, at the end, provides a detailed dashboard with scores and summaries.
+This project is an AI-based interviewer application designed to simulate a professional interview environment. It leverages Large Language Models (LLMs) via Groq and Google Gemini: **Llama-3.3-70b-versatile** for reasoning and interview generation, and **Qwen QwQ-32b** for summarization, alongside **Gemini-2.0-flash** for embeddings. The application automatically converses with the interviewee and, at the end, provides a detailed dashboard with scores and summaries.
 
 ## Features
 
 - **Automated Interview Process**: The AI conducts the interview by asking questions, evaluating responses, and providing feedback. This ensures a consistent and unbiased interview process.
-- **Dual LLM Integration**: Utilizes Groq's Gemma2-9b for quick responses and reasoning model qwen qwq for more detailed and nuanced interactions, combining speed with depth.
+- **Multi-Model LLM Integration**: Utilizes Groq's Llama-3.3-70b-versatile for real-time interview generation and Qwen QwQ-32b for detailed resume and dashboard summaries, combining conversational depth with strong reasoning.
 - **Real-Time Conversation**: The AI maintains a conversation history and adapts its questions based on the interviewee's responses, creating a dynamic and interactive interview experience.
 - **AI Interviewer Tailored with Indian Voice**: For seamless interaction and to make the interviewee comfortable, the AI interviewer uses Eleven Labs for voice synthesis, tailored to speak with an Indian voice.
 - **Dashboard Summary**: At the end of the interview, the application generates a detailed summary including scores and key points, providing a comprehensive overview of the candidate's performance.
@@ -121,18 +121,16 @@ This AI interviewer agent is built using LangChain and LangGraph to orchestrate 
    - **Initializer**  
      Inserts the system prompt once at the start of the conversation if not already present.
    - **Retriever**  
-     Queries a Supabase vector store (via sentence-transformers embeddings) to fetch past candidate questions or hints when semantic similarity is high (> 0.8).This gives the organisation the option to reduce randomness among various candidates and have more control over the interview process.
+     Queries a Supabase vector store (via Google Generative AI embeddings `models/embedding-001`) to fetch past candidate questions or hints when semantic similarity is high (> 0.8). This gives the organisation the option to reduce randomness among various candidates and have more control over the interview process.
      This is done by storing the questions that can be asked in response to the candidate's response in a vector database.
    - **Assistant**  
-     Invokes a bound LLM (OpenAI, Google Gemini, Groq Gemma2, or HuggingFace Llama-2) to generate interview questions.
+     Invokes a bound LLM (Google Gemini or Groq Llama-3.3) to generate interview questions.
    - **Tools**  
      Routes calls to external tool functions when the assistant requests them.
 
 3. **LLM Providers**
-   - **OpenAI** via `ChatOpenAI`
-   - **Google Gemini** via `ChatGoogleGenerativeAI`
-   - **Groq** via `ChatGroq`
-   - **HuggingFace** via `ChatHuggingFace` endpoint  
+   - **Google Gemini** via `ChatGoogleGenerativeAI` (e.g., gemini-2.0-flash)
+   - **Groq** via `ChatGroq` (e.g., llama-3.3-70b-versatile)
    These can all be swapped by setting the `provider` argument in `build_graph()`.
 
 4. **Tools**
