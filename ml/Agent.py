@@ -141,17 +141,8 @@ def build_graph(provider: str = "groq"):
         # Groq https://console.groq.com/docs/models
         from langchain_groq import ChatGroq
         llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
-    elif provider == "huggingface":
-        from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
-        llm = ChatHuggingFace(
-            llm=HuggingFaceEndpoint(
-                # pyrefly: ignore [unexpected-keyword]
-                url="https://api-inference.huggingface.co/models/Meta-DeepLearning/llama-2-7b-chat-hf",
-                temperature=0,
-            ),
-        )
     else:
-        raise ValueError("Invalid provider. Choose 'google', 'groq' or 'huggingface'.")
+        raise ValueError("Invalid provider. Choose 'google' or 'groq'.")
     # Bind tools to LLM
     llm_with_tools = llm.bind_tools(tools)
 
