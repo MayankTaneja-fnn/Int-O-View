@@ -320,6 +320,9 @@ def final_dashboard_json():
 # Function to get interview responses
 def get_response(user_input):
     global graph, messages, conversation_history
+    if graph is None:
+        return "I'm sorry, but your interview session hasn't been properly initialized. Please ensure you have uploaded your resume before starting."
+        
     if user_input.lower() == "exit":
         return final_dashboard_json()
     else:
