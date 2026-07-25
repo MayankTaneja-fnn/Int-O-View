@@ -47,9 +47,14 @@ const sendOtp = asyncHandler(async (req, res) => {
         `,
   };
 
-  await nodemailerService.sendMail(options);
+  try {
+    await nodemailerService.sendMail(options);
+  } catch (error) {
+    console.warn("Email sending failed (likely due to Render SMTP blocking):", error.message);
+    // Continue execution so the frontend doesn't crash and you can read the OTP from the database
+  }
 
-  res.json(new ApiResponse(200, {}, 'otp sent successfully'));
+  res.json(new ApiResponse(200, {}, 'otp processed (check db or console if email failed)'));
 });
 
 const verifyOtp = asyncHandler(async (req, res) => {
