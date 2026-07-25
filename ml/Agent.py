@@ -100,16 +100,21 @@ def exit_tool() -> str:
     return {"exit": "Exiting the program."}
 
 # build a retriever
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2") #  dim=768
-supabase: Client = create_client(
-    os.environ.get("SUPABASE_URL"), 
-    os.environ.get("SUPABASE_SERVICE_KEY"))
-vector_store = SupabaseVectorStore(
-    client=supabase,
-    embedding= embeddings,
-    table_name="documents",
-    query_name="match_documents",
-)
+_vector_store = None
+def get_vector_store():
+    global _vector_store
+    if _vector_store is None:
+        embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2") #  dim=768
+        supabase: Client = create_client(
+            os.environ.get("SUPABASE_URL"), 
+            os.environ.get("SUPABASE_SERVICE_KEY"))
+        _vector_store = SupabaseVectorStore(
+            client=supabase,
+            embedding= embeddings,
+            table_name="documents",
+            query_name="match_documents",
+        )
+    return _vector_store
 
 
 tools = [
@@ -161,7 +166,8 @@ def build_graph(provider: str = "groq"):
             return {"messages": []}
             
         try:
-            similar_question = vector_store.similarity_search_with_relevance_scores(last_message)
+            vs = get_vector_store()
+            similar_question = vs.similarity_search_with_relevance_scores(last_message)
             if similar_question and similar_question[0][1]>0.8:
                 example_msg = HumanMessage(
                     content=f"[Helper] You can ask the interviewee about \n\n{similar_question[0][0].page_content}"
