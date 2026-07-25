@@ -2,6 +2,7 @@ flask
 Flask-Cors
 groq
 PyPDF2
+gunicorn
 python-dotenv
 arxiv
 langchain
