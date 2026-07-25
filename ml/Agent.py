@@ -51,16 +51,17 @@ def web_search(query: str) -> str:
     Args:
         query: The search query."""
     try:
-        from langchain_community.tools.tavily_search import TavilySearchResults
-        search_docs = TavilySearchResults(max_results=3).invoke(input=query)
+        from langchain_tavily import TavilySearch
+        search_docs = TavilySearch(max_results=3).invoke(input=query)
         formatted_search_docs = "\n\n---\n\n".join(
             [
-                f'<Document source="{doc["url"]}" title="{doc["title"]}"/>\n{doc["content"]}\n</Document>'
+                f'<Document href="{doc.get("url", "")}"/>\n{doc.get("content", "")}\n</Document>'
                 for doc in search_docs
-            ])
-        return {"web_results": formatted_search_docs}
+            ]
+        )
+        return f"\n\n---\n\n{formatted_search_docs}"
     except Exception as e:
-        return {"web_results": "Web search unavailable or failed due to missing API key or network error."}
+        return f"Web search unavailable or failed: {e}"
 
 @tool
 def arxiv_search(query: str) -> str:
