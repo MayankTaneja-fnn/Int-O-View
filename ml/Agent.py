@@ -5,13 +5,7 @@ import os
 from langgraph.graph import START, StateGraph, MessagesState
 from langgraph.prebuilt import tools_condition
 from langgraph.prebuilt import ToolNode
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_groq import ChatGroq
-from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint, HuggingFaceEmbeddings
-from langchain_community.tools.tavily_search import TavilySearchResults
-from langchain_community.document_loaders import WikipediaLoader
-from langchain_community.document_loaders import ArxivLoader
-from langchain_community.vectorstores import SupabaseVectorStore
+# Defer heavy imports to when they are needed
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.tools import tool
 from supabase.client import Client, create_client
@@ -41,6 +35,7 @@ def wiki_search(query: str) -> str:
     
     Args:
         query: The search query."""
+    from langchain_community.document_loaders import WikipediaLoader
     search_docs = WikipediaLoader(query=query, load_max_docs=1).load()
     formatted_search_docs = "\n\n---\n\n".join(
         [
@@ -56,6 +51,7 @@ def web_search(query: str) -> str:
     Args:
         query: The search query."""
     try:
+        from langchain_community.tools.tavily_search import TavilySearchResults
         search_docs = TavilySearchResults(max_results=3).invoke(input=query)
         formatted_search_docs = "\n\n---\n\n".join(
             [
@@ -72,6 +68,7 @@ def arxiv_search(query: str) -> str:
     
     Args:
         query: The search query."""
+    from langchain_community.document_loaders import ArxivLoader
     search_docs = ArxivLoader(query=query, load_max_docs=3).load()
     formatted_search_docs = "\n\n---\n\n".join(
         [
@@ -104,6 +101,8 @@ _vector_store = None
 def get_vector_store():
     global _vector_store
     if _vector_store is None:
+        from langchain_huggingface import HuggingFaceEmbeddings
+        from langchain_community.vectorstores import SupabaseVectorStore
         embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2") #  dim=768
         supabase: Client = create_client(
             os.environ.get("SUPABASE_URL"), 
@@ -131,11 +130,14 @@ def build_graph(provider: str = "groq"):
     # Load environment variables from .env file
     if provider == "google":
         # Google Gemini
+        from langchain_google_genai import ChatGoogleGenerativeAI
         llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)
     elif provider == "groq":
         # Groq https://console.groq.com/docs/models
+        from langchain_groq import ChatGroq
         llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
     elif provider == "huggingface":
+        from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
         llm = ChatHuggingFace(
             llm=HuggingFaceEndpoint(
                 # pyrefly: ignore [unexpected-keyword]
