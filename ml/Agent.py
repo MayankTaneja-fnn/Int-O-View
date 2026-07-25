@@ -101,9 +101,13 @@ _vector_store = None
 def get_vector_store():
     global _vector_store
     if _vector_store is None:
-        from langchain_huggingface import HuggingFaceEmbeddings
+        # Switched to Google API embeddings because local HuggingFace models crash Render's 512MB RAM limit.
+        # This model uses exactly 768 dimensions, perfectly matching your Supabase configuration.
+        from langchain_google_genai import GoogleGenerativeAIEmbeddings
         from langchain_community.vectorstores import SupabaseVectorStore
-        embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2") #  dim=768
+        
+        embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001") # dim=768
+        
         supabase: Client = create_client(
             os.environ.get("SUPABASE_URL"), 
             os.environ.get("SUPABASE_SERVICE_KEY"))
