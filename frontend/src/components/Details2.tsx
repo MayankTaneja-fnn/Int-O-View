@@ -16,6 +16,12 @@ function Details2() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (!reduxData.email || !reduxData.phone) {
+      navigate("/");
+    }
+  }, [reduxData, navigate]);
+
   const [data, setData] = useState<{
     post: string;
     photo: File | null;
@@ -76,7 +82,9 @@ function Details2() {
         setLoading(false);
         navigate("/interview_room");
       }
-    } catch (error) {
+    } catch (error: any) {
+      setLoading(false);
+      alert(error?.response?.data?.message || "An error occurred while uploading. Please ensure the Python backend is running.");
       throw error;
     }
   };

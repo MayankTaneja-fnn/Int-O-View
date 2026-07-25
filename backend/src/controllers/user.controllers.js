@@ -81,7 +81,7 @@ const uploadResume = asyncHandler(async (req, res) => {
   }
   // Create a form data object
   const formData = new FormData();
-  formData.append('resume', fs.createReadStream(resumeLocalPath)); // Ensure the key is 'resume'
+  formData.append('resume', fs.createReadStream(resumeLocalPath), { filename: 'resume.pdf' }); // Ensure the key is 'resume' and filename is clean
   try {
     const response = await axios.post(
       `${process.env.FLASK_URL}/upload`,
@@ -94,7 +94,7 @@ const uploadResume = asyncHandler(async (req, res) => {
     );
   } catch (error) {
     console.log(error);
-    throw new ApiError(500, error.response.data.message);
+    throw new ApiError(500, error?.response?.data?.message || "Flask backend is unreachable or encountered an error.");
   }
 
   fs.unlinkSync(resumeLocalPath);
@@ -105,8 +105,13 @@ const uploadResume = asyncHandler(async (req, res) => {
 const createUser = asyncHandler(async (req, res) => {
   const { fullName, email, phone, post } = req.body;
 
-  if ([fullName, email, phone, post].some((field) => field === undefined)) {
-    throw new ApiError(400, 'All fields are required');
+  if ([fullName, email, phone, post].some((field) => field === undefined || field === "null" || field === "")) {
+    throw new ApiError(400, 'All fields are required. Please go back and complete the first step.');
+  }
+
+  const phoneNumber = Number(phone);
+  if (isNaN(phoneNumber)) {
+    throw new ApiError(400, 'Invalid phone number');
   }
 
   const searchUser = await User.findOne({
@@ -115,7 +120,7 @@ const createUser = asyncHandler(async (req, res) => {
         email,
       },
       {
-        phone,
+        phone: phoneNumber,
       },
     ],
   });
@@ -148,7 +153,7 @@ const createUser = asyncHandler(async (req, res) => {
   const user = await User.create({
     fullName,
     email,
-    phone: Number(phone),
+    phone: phoneNumber,
     post,
     photo: photo?.url ?? '',
     resume: resume?.url ?? '',
@@ -189,17 +194,22 @@ const createUser = asyncHandler(async (req, res) => {
 const callModel = asyncHandler(async (req, res) => {
   const { query } = req.body;
 
-  const response = await axios.post(
-    `${process.env.FLASK_URL}/predict`,
-    { query },
-    {
-      withCredentials: true,
-    }
-  );
+  try {
+    const response = await axios.post(
+      `${process.env.FLASK_URL}/predict`,
+      { query },
+      {
+        withCredentials: true,
+      }
+    );
 
-  res.json({
-    message: response.data.message,
-  });
+    res.json({
+      message: response.data.message,
+    });
+  } catch(error) {
+    console.error(error);
+    throw new ApiError(500, error?.response?.data?.message || "Flask backend is unreachable or encountered an error.");
+  }
 });
 
 const setUser = asyncHandler(async (req, res) => {
@@ -215,7 +225,7 @@ const setUser = asyncHandler(async (req, res) => {
     );
   } catch (error) {
     console.error(error);
-    throw new ApiError(500, error.response.data.message);
+    throw new ApiError(500, error?.response?.data?.message || "Flask backend is unreachable or encountered an error.");
   }
 
   res.json(new ApiResponse(200, {}, 'post set successfully'));

@@ -73,9 +73,9 @@ function TestRoom() {
       currentAudioRef.current.pause();
       currentAudioRef.current.currentTime = 0;
       currentAudioRef.current = null;
-      setIsGifVisible(false); 
+      setIsGifVisible(false);
     }
-    
+
     if (isListening) {
       setIsListening(false);
       recogRef.current.stop();
@@ -89,15 +89,15 @@ function TestRoom() {
   const handleEndInterview = async () => {
     try {
       setIsEndingInterview(true);
-      
+
       // Stop any playing audio
       if (currentAudioRef.current) {
         currentAudioRef.current.pause();
         currentAudioRef.current.currentTime = 0;
         currentAudioRef.current = null;
-        setIsGifVisible(false); 
+        setIsGifVisible(false);
       }
-      
+
       // Send the `exit` query via a POST request
       await axios.post(`${import.meta.env.VITE_BACKEND_URL}/callModel`, {
         query: "exit",
@@ -117,8 +117,8 @@ function TestRoom() {
       try {
         console.log(newResponse);
         const apiKey = `${import.meta.env.VITE_ELEVEN_LAB_KEY}`;
-        const url = 'https://api.elevenlabs.io/v1/text-to-speech/MF4J4IDTRo0AxOO4dpFR';
-  
+        const url = 'https://api.elevenlabs.io/v1/text-to-speech/hpp4J3VqNfWAUOO0d1Us';
+
         const options = {
           method: 'POST',
           mode: "cors" as RequestMode,
@@ -128,44 +128,44 @@ function TestRoom() {
           },
           body: JSON.stringify({
             text: newResponse,
-            model_id :"eleven_flash_v2_5",
+            model_id: "eleven_flash_v2_5",
             voice_settings: {
               stability: 0.5,
               similarity_boost: 0.5,
             },
           }),
         };
-  
+
         const res = await fetch(url, options);
-  
+
         if (!res.ok) {
           throw new Error('Failed to fetch the audio');
         }
-  
+
         // Stop the previous audio if it is still playing
         if (currentAudioRef.current) {
           currentAudioRef.current.pause();
           currentAudioRef.current.currentTime = 0; // Reset the audio
         }
-  
+
         const audioUrl = URL.createObjectURL(await res.blob());
-  
+
         // Create new audio and assign it to currentAudio
         currentAudioRef.current = new Audio(audioUrl);
         currentAudioRef.current.play();
-  
+
         setIsGifVisible(true);
         currentAudioRef.current.onended = () => {
           setIsGifVisible(false);
           currentAudioRef.current = null; // Clear the reference when done
         };
-  
+
       } catch (error) {
         console.error('Error speaking text:', error);
       }
     }
   };
-  
+
 
   useEffect(() => {
     speakText(response);
@@ -313,11 +313,10 @@ function TestRoom() {
           <div className="flex justify-center p-1 bg-zinc-800 bg-opacity-50 rounded-xl shadow-inner">
             <button
               onClick={toggleCamera}
-              className={`flex items-center justify-center p-3 mr-5 transition-all duration-300 transform rounded-full ${
-                isCameraOn 
-                ? "bg-gradient-to-br from-green-500 to-green-700 hover:from-green-600 hover:to-green-800" 
+              className={`flex items-center justify-center p-3 mr-5 transition-all duration-300 transform rounded-full ${isCameraOn
+                ? "bg-gradient-to-br from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
                 : "bg-gradient-to-br from-red-500 to-red-700 hover:from-red-600 hover:to-red-800"
-              } shadow-lg hover:scale-105 active:scale-95`}
+                } shadow-lg hover:scale-105 active:scale-95`}
             >
               {isCameraOn ? (
                 <IconRiCameraLine className="text-2xl text-white" />
@@ -328,11 +327,10 @@ function TestRoom() {
 
             <button
               onClick={startListening}
-              className={`flex items-center justify-center p-3 transition-all duration-300 transform rounded-full ${
-                isListening 
-                ? "bg-gradient-to-br from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 animate-pulse" 
+              className={`flex items-center justify-center p-3 transition-all duration-300 transform rounded-full ${isListening
+                ? "bg-gradient-to-br from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 animate-pulse"
                 : "bg-gradient-to-br from-red-500 to-red-700 hover:from-red-600 hover:to-red-800"
-              } shadow-lg hover:scale-105 active:scale-95`}
+                } shadow-lg hover:scale-105 active:scale-95`}
             >
               {isListening ? (
                 <IconRiMicLine className="text-2xl text-white" />
@@ -351,23 +349,23 @@ function TestRoom() {
                   Listening... Speak now
                 </div>
               )}
-              
+
               {isProcessing && (
                 <div className="flex items-center p-2 mb-3 space-x-2 text-blue-400 bg-zinc-700 rounded-lg text-sm">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                   <span className="ml-1">Processing response...</span>
                 </div>
               )}
-              
+
               {transcript && (
                 <div className="p-3 mb-3 transition-all duration-300 rounded-lg bg-zinc-700 hover:bg-zinc-600">
                   <p className="mb-1 font-semibold text-blue-300 text-sm">You</p>
                   <p className="text-base">{transcript}</p>
                 </div>
               )}
-              
+
               {response && (
                 <div className="p-3 transition-all duration-300 rounded-lg bg-zinc-700 hover:bg-zinc-600">
                   <p className="mb-1 font-semibold text-green-300 text-sm">Interviewer</p>
@@ -381,7 +379,7 @@ function TestRoom() {
         {/* Right Section with Conversation History - adjusted height */}
         <div className="flex flex-col flex-1 p-3 shadow-xl bg-zinc-800 rounded-xl max-w-[450px] bg-opacity-70 backdrop-blur-sm max-h-[calc(94vh-2rem)]">
           <h3 className="mb-2 text-lg font-semibold text-white">Conversation History</h3>
-          <div 
+          <div
             ref={historyRef}
             className="flex flex-col p-3 space-y-3 overflow-y-auto flex-1 rounded-xl bg-zinc-700 bg-opacity-50 shadow-inner"
             style={{ maxHeight: 'calc(100vh - 2rem)' }}
@@ -428,7 +426,7 @@ function CollapsibleMessage({
       <p className={`font-semibold ${isUser ? "text-blue-300" : "text-green-300"} mb-1 text-xs`}>
         {isUser ? "You:" : "Interviewer:"}
       </p>
-      
+
       {isExpanded || message.length <= MAX_LENGTH ? (
         <p className="text-sm">{message}</p>
       ) : (

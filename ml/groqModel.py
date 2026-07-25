@@ -149,7 +149,7 @@ def get_response(user_input):
         conversation_history.append({"role": "user", "content": user_input})
     
     try:
-        completion = client.chat.completions.create(model="gemma2-9b-it",messages=conversation_history)
+        completion = client.chat.completions.create(model="llama-3.3-70b-versatile",messages=conversation_history)
         response_text=thinkRemover(completion.choices[0].message.content)
         conversation_history.append({"role": "assistant", "content": response_text})
         return response_text

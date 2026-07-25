@@ -55,13 +55,16 @@ def web_search(query: str) -> str:
     
     Args:
         query: The search query."""
-    search_docs = TavilySearchResults(max_results=3).invoke(input=query)
-    formatted_search_docs = "\n\n---\n\n".join(
-        [
-            f'<Document source="{doc["url"]}" title="{doc["title"]}"/>\n{doc["content"]}\n</Document>'
-            for doc in search_docs
-        ])
-    return {"web_results": formatted_search_docs}
+    try:
+        search_docs = TavilySearchResults(max_results=3).invoke(input=query)
+        formatted_search_docs = "\n\n---\n\n".join(
+            [
+                f'<Document source="{doc["url"]}" title="{doc["title"]}"/>\n{doc["content"]}\n</Document>'
+                for doc in search_docs
+            ])
+        return {"web_results": formatted_search_docs}
+    except Exception as e:
+        return {"web_results": "Web search unavailable or failed due to missing API key or network error."}
 
 @tool
 def arxiv_search(query: str) -> str:
@@ -126,10 +129,11 @@ def build_graph(provider: str = "groq"):
         llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)
     elif provider == "groq":
         # Groq https://console.groq.com/docs/models
-        llm = ChatGroq(model="gemma2-9b-it", temperature=0) # optional : qwen-qwq-32b gemma2-9b-it
+        llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
     elif provider == "huggingface":
         llm = ChatHuggingFace(
             llm=HuggingFaceEndpoint(
+                # pyrefly: ignore [unexpected-keyword]
                 url="https://api-inference.huggingface.co/models/Meta-DeepLearning/llama-2-7b-chat-hf",
                 temperature=0,
             ),
@@ -142,21 +146,31 @@ def build_graph(provider: str = "groq"):
     # seed once: only prepend sys_msg if we have no messages yet
     def initializer(state: MessagesState):
         msgs = state["messages"]
-        if len(msgs)==1:
+        if len(msgs) == 0:
             return {"messages": [sys_msg]}
-        return {"messages": msgs}
+        # Returning empty list prevents duplicating messages in state
+        return {"messages": []}
 
     def retriever(state: MessagesState):
         """Retriever node"""
+        if not state["messages"]:
+            return {"messages": []}
+            
         last_message = state["messages"][-1].content
-        similar_question = vector_store.similarity_search_with_relevance_scores(last_message)
-        if similar_question and similar_question[0][1]>0.8:
-            example_msg = HumanMessage(
-                content=f"[Helper] You can ask the interviewee about \n\n{similar_question[0][0].page_content}"
-            )
-            return {"messages": state["messages"] + [example_msg]}
-        else:
-            return {"messages": state["messages"]}
+        if not last_message or not isinstance(last_message, str) or not last_message.strip():
+            return {"messages": []}
+            
+        try:
+            similar_question = vector_store.similarity_search_with_relevance_scores(last_message)
+            if similar_question and similar_question[0][1]>0.8:
+                example_msg = HumanMessage(
+                    content=f"[Helper] You can ask the interviewee about \n\n{similar_question[0][0].page_content}"
+                )
+                return {"messages": [example_msg]}
+        except Exception:
+            pass
+            
+        return {"messages": []}
     
     # Node
     def assistant(state: MessagesState):
@@ -227,7 +241,10 @@ You are Shreya, a female officer responsible for conducting a high-level profess
 def final_dashboard_json():
     global dashboardData,messages, startTime, endTime
     endTime = datetime.now()
-    totalTime = (endTime - startTime).seconds
+    if startTime is None:
+        totalTime = 0
+    else:
+        totalTime = (endTime - startTime).seconds
     print(totalTime)
     print(messages)
     for m in messages:
@@ -289,7 +306,7 @@ def final_dashboard_json():
     temp_conversation = conversation_history.copy()
     temp_conversation.append({"role": "user", "content": prompt})
     
-    completion = client.chat.completions.create(model="qwen-qwq-32b", messages=temp_conversation)
+    completion = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=temp_conversation)
     response_text = thinkRemover(completion.choices[0].message.content)
     print(response_text)
     dashboardData = response_text
@@ -306,7 +323,7 @@ def get_response(user_input):
         messages.append(HumanMessage(content=user_input))
 
     try:
-        messages = graph.invoke({"messages": messages})["messages"]
+        messages = list(graph.invoke({"messages": messages})["messages"])
         for msg in messages[-3:]:
             if hasattr(msg, "tool_calls"):
                 for call in msg.tool_calls:
