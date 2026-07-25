@@ -31,6 +31,82 @@ This project is an AI-based interviewer application designed to simulate a profe
 6. **Quantitative Metrics**
    - At the end of the interview, on the recruiter’s dashboard, quantitative metrics will be shown covering key scores, interview summary, and other key metrics for the recruiter to take the final call.
 
+## Tech Stack
+
+- **Frontend:** React, Vite, Tailwind CSS, Redux Toolkit, GSAP (for animations)
+- **Backend:** Node.js, Express, MongoDB, Cloudinary
+- **Machine Learning / AI:** Python, Flask, LangChain, LangGraph, Groq, Supabase (pgvector), Google Generative AI
+
+## Project Structure
+
+```text
+INT-O-View/
+├── backend/       # Node.js + Express backend (Handles auth, database connections)
+├── frontend/      # React + Vite frontend (UI/UX, Dashboards, Interview Room)
+├── ml/            # Python + Flask ML server (LangGraph Agents, LLM integrations)
+└── README.md
+```
+
+## Getting Started / Installation
+
+### Prerequisites
+- Node.js (v16 or higher)
+- Python 3.8+
+- MongoDB, Supabase, and required API keys (Groq, ElevenLabs, etc.)
+
+### 1. Backend Setup
+```bash
+cd backend
+npm install
+# Create a .env file based on environment variables listed below
+npm run dev
+```
+
+### 2. Frontend Setup
+```bash
+cd frontend
+npm install
+# Create a .env file based on environment variables listed below
+npm run dev
+```
+
+### 3. Machine Learning Setup
+```bash
+cd ml
+pip install -r requirements.txt
+# Create a .env file based on environment variables listed below
+python index.py
+```
+
+## Environment Variables
+
+To run this project locally, create `.env` files in their respective directories with the following keys:
+
+**`backend/.env`**
+- `APP_PASS`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
+- `CLOUDINARY_CLOUD_NAME`
+- `FLASK_URL`
+- `MAIL`
+- `MONGODB_URL`
+- `ORIGIN`
+- `PORT`
+- `SESSION_TOKEN_KEY`
+
+**`frontend/.env`**
+- `VITE_BACKEND_URL`
+- `VITE_FLASK_URL`
+- `VITE_ELEVEN_LAB_KEY`
+
+**`ml/.env`**
+- `CLIENT_ORIGIN`
+- `FLASK_PORT`
+- `GROQ_API_KEY`
+- `SUPABASE_SERVICE_KEY`
+- `SUPABASE_URL`
+- `GOOGLE_API_KEY`
+
 ## [Agent](https://github.com/wolgwang1729/Int-O-View/blob/main/ml/Agent.py)
 
 This AI interviewer agent is built using LangChain and LangGraph to orchestrate a multi-step conversational workflow:
@@ -166,7 +242,14 @@ The system dynamically generates interview questions tailored to the specific jo
 
 ## Contributions
 
-Contributions are welcome! Please fork the repository and submit a pull request with your changes. We appreciate your efforts to improve this project.
+Contributions are welcome! Please follow these steps to contribute:
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+We appreciate your efforts to improve this project.
 
 ## License
 
