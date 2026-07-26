@@ -1,4 +1,4 @@
-# [AI-Based Interviewer](https://int-o-view.vercel.app/)
+# [AI-Based Interviewer](https://int-o-view-two.vercel.app/)
 
 This project is an AI-based interviewer application designed to simulate a professional interview environment. It leverages Large Language Models (LLMs) via Groq and Google Gemini: **Llama-3.3-70b-versatile** for reasoning and interview generation, and **Qwen QwQ-32b** for summarization, alongside **Gemini-2.0-flash** for embeddings. The application automatically converses with the interviewee and, at the end, provides a detailed dashboard with scores and summaries.
 
