@@ -107,7 +107,7 @@ To run this project locally, create `.env` files in their respective directories
 - `SUPABASE_URL`
 - `GOOGLE_API_KEY`
 
-## [Agent](https://github.com/wolgwang1729/Int-O-View/blob/main/ml/Agent.py)
+<!-- ## [Agent](https://github.com/wolgwang1729/Int-O-View/blob/main/ml/Agent.py) -->
 
 This AI interviewer agent is built using LangChain and LangGraph to orchestrate a multi-step conversational workflow:
 
