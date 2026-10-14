@@ -140,7 +140,7 @@ def build_graph(provider: str = "groq"):
     elif provider == "groq":
         # Groq https://console.groq.com/docs/models
         from langchain_groq import ChatGroq
-        llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
+        llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0)
     else:
         raise ValueError("Invalid provider. Choose 'google' or 'groq'.")
     # Bind tools to LLM
