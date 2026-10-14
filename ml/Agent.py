@@ -310,7 +310,7 @@ def final_dashboard_json():
     temp_conversation = conversation_history.copy()
     temp_conversation.append({"role": "user", "content": prompt})
     
-    completion = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=temp_conversation)
+    completion = client.chat.completions.create(model="openai/gpt-oss-120b", messages=temp_conversation)
     response_text = thinkRemover(completion.choices[0].message.content)
     print(response_text)
     dashboardData = response_text
